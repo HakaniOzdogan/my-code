@@ -1,0 +1,297 @@
+#include <iomanip> 
+#include <cstring> 
+#include <stdlib.h>
+#include <conio.h>
+#include <stdio.h> 
+#include <fstream>                  
+#include <iostream>
+using namespace std;
+
+struct Film
+{
+	char film[99];
+	char ozet[99];
+	float imdb;
+	int imdb_sayac;
+	char film_num[10];
+
+	
+};
+
+
+void film_ekle();
+void film_liste();
+void imdb();
+void film_sil();
+void imdb_siralama();
+
+
+int main()
+{
+	setlocale(LC_ALL,"Turkish");
+	char donus;
+	do{
+	system("cls");
+	
+	cout<<"         Hoşbulmuşeniz  "<<endl;
+	cout<<"Yapmak istediğiniz işlemi seçiniz"<<endl; 
+	cout<<"  1-  Filmler ve konular"<<endl;  
+	cout<<"  2-  Filmler ve Puanlar"<<endl;
+	cout<<"  3-  Film ekleyeceum"<<endl;             
+	cout<<"  4-  Film sileceum "<<endl;            
+	
+	
+	
+char secim;
+cin>>secim;
+
+switch(secim)
+{
+
+	case '1':
+	{
+
+film_liste();
+
+
+		
+		break;
+	}
+		case '2':
+	{
+
+film_liste();
+imdb();
+
+
+		
+		break;
+	}
+	case '3':
+	{
+film_ekle();	
+	
+	
+		
+		break;
+	}
+	case '4':
+	{
+film_liste();
+film_sil();
+	
+	break;
+	}	
+}
+
+cout<<"Başa dönmek için (E,e)"<<endl;
+donus=getche();
+
+}while(donus=='e'||donus=='E');
+	
+}
+   Film movie;
+
+void film_ekle()
+{
+	
+ofstream yaz("film.txt",ios::app | ios::binary);
+	char secim;
+
+
+	string kova,kova_2;
+	
+
+
+
+	cout<<"Film numarası giriniz\n";
+	cin.ignore();
+    cin>>movie.film_num;
+		
+	cout << "Filmin Adını Giriniz\n";
+	cin.ignore();
+getline(cin,kova,'\n');
+for(int i=0;i<kova.size();i++)
+{
+	movie.film[i]+=kova[i];
+}
+	
+	cout << "Filmin Konusunu Giriniz\n" ;
+	cin.ignore();
+	getline(cin,kova_2,'\n');
+for(int i=0;i<kova_2.size();i++)
+{
+	movie.ozet[i]+=kova_2[i];
+}
+
+	cout << endl;
+	yaz.write((char*)&movie, sizeof(movie));	
+
+yaz.close();
+}
+
+void film_liste()
+{
+	
+	ifstream oku("film.txt",ios::app);
+	
+	oku.seekg(0,ios::end);
+	int kayits=oku.tellg()/sizeof(movie);
+	cout << "Toplam Film Kayit Sayisi:"<< kayits;
+	cout<<"\n";
+	
+	if(kayits>0)
+	{
+		for(int i=0; i<kayits;i++)
+		{
+			oku.seekg(i*sizeof(movie));
+			oku.read((char*)&movie, sizeof(movie));	
+		
+	         cout<<i+1<<" . kayıt\n";
+	         cout<<"Filmin numarası :"<<movie.film_num<<endl;
+			 cout<<"Filmin adı :"<<movie.film<<endl;
+             cout<<"Filmin konusu :"<<movie.ozet<<endl;
+			
+		}
+		
+		
+	}
+	else
+	cout << "Kayit Bulunamadi..." << endl;
+
+	oku.close();
+}
+
+
+
+
+
+
+
+void imdb()
+{
+	
+	char s_film[80];
+    float toplam_imdb;
+    float kova=0;
+
+     
+    ifstream oku("film.txt",ios::app);
+	
+	oku.seekg(0,ios::end);
+
+	int kayitsayisi=oku.tellg()/sizeof(movie);
+	
+	if(kayitsayisi>0){
+	
+	
+     cout<<"İMDB puanı eklmek istediğiniz filmin Nosunu giriniz : \n";
+     cin>>s_film;
+
+     for(int i=0;i<kayitsayisi;i++)
+     {
+            oku.seekg(i*sizeof(movie));
+			oku.read((char*)&movie, sizeof(movie));
+			
+     if(strcmp(movie.film_num,s_film)==0)
+       {
+       	        cout<<"\nFilminiz :";
+       	        cout<<"\nFilmin adı :"<<movie.film;
+                cout<<"\nFilmin konusu :"<<movie.ozet;
+          }
+    else 
+    cout<<"\nFilminiz bulunamadı..\n";
+
+     }
+     
+     if(strcmp(movie.film_num,s_film)==0)
+     { ofstream yaz("film.txt",ios::app);
+            
+              cout<<"\nPuanınızı giriniz:\n";
+              cin>>toplam_imdb;
+              
+              movie.imdb+=toplam_imdb;
+              toplam_imdb=0;
+              movie.imdb_sayac++;
+            
+            yaz.write((char*)&movie, sizeof(movie));
+            
+            
+            yaz.close();
+            
+    
+              cout<<"\nŞuanki İMDB puanı \n"<<movie.imdb/movie.imdb_sayac;
+              cout<<"\n";
+              
+	 }
+}
+    oku.close();
+   
+	
+	
+}
+void film_sil()
+{
+	 char s_film[80];
+     char secim= ' ';
+     bool var=false;
+     
+    ifstream oku("film.txt",ios::app);
+	
+	oku.seekg(0,ios::end);
+
+	int kayitsayisi=oku.tellg()/sizeof(movie);
+	
+     cout<<"Kaydini Sileceginiz Film No Giriniz : ";
+     cin>>s_film;
+
+     for(int i=0;i<kayitsayisi;i++)
+     {
+            oku.seekg(i*sizeof(movie));
+			oku.read((char*)&movie, sizeof(movie));
+			
+     if(strcmp(movie.film_num,s_film)==0)
+       {
+                cout<<"\nFilmin adı :"<<movie.film;
+                cout<<"\nFDilmin konusu :"<<movie.ozet;
+                
+            
+         	 				  
+                cout<<"\nSilmek Istediginiz Kayit Bu Mu? [E/H] : ";
+                 secim=getche();
+
+            if(secim=='e'||secim=='E')
+              {
+   			   	var=true;
+  		 	  }
+    }
+             else
+             {
+              Film y_movie;
+              ofstream y_dosya("Yedek.txt",ios::app);
+              
+              strcpy(y_movie.film,movie.film);
+              strcpy(y_movie.ozet,movie.ozet);
+              strcpy(y_movie.film_num,movie.film_num);
+
+                       
+              y_dosya.write((char*)&y_movie, sizeof(y_movie));
+              y_dosya.close();
+             }
+         
+     }
+    oku.close();
+    if(var)
+    {
+               remove("film.txt");
+               rename("Yedek.txt","film.txt");
+               cout<<"\n Kayit Silindi"<<endl;
+    }
+    else
+    {
+               remove("Yedek.txt");
+               cout<<"\n Kayit Bulunamadi"<<endl;                  
+    }
+	
+	
+}
